@@ -24,7 +24,7 @@ const A2APlaygroundPage: React.FC = () => {
   return (
     <Box minH="100vh" bg="white">
       <HushhTechHeader />
-      <Box pb="40px">
+      <Box pb={{ base: "24px", md: "40px" }}>
         <A2APlaygroundContainer />
       </Box>
       <Footer />

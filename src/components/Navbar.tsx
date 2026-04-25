@@ -45,6 +45,14 @@ const TickerChip = ({ quote, isLoading }: { quote: StockQuote; isLoading?: boole
   );
 };
 
+const TickerPlaceholder = () => (
+  <div className="flex h-10 w-[108px] shrink-0 items-center gap-2 rounded-full bg-white border border-gray-200 shadow-sm pl-2 pr-3.5 animate-pulse">
+    <div className="w-7 h-7 rounded-full bg-gray-200 shrink-0" />
+    <div className="h-2.5 w-10 rounded bg-gray-200" />
+    <div className="h-2.5 w-8 rounded bg-gray-200" />
+  </div>
+);
+
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -73,10 +81,17 @@ export default function Navbar() {
   const hideTicker = isOnboarding || isProfilePage;
 
   // Fetch real-time stock quotes (refreshes every 2 minutes for 27 stocks)
-  const { quotes, loading: quotesLoading, lastUpdated } = useStockQuotes(120000);
+  const {
+    quotes,
+    loading: quotesLoading,
+    lastUpdated,
+    error: quotesError,
+    isFallback,
+  } = useStockQuotes(120000);
 
   // quotes already includes fallback data from the hook, so we can use it directly
   const displayQuotes = quotes;
+  const showTickerPlaceholders = quotesLoading && displayQuotes.length === 0;
 
   useEffect(() => {
     const currentUserId = user?.id ?? null;
@@ -303,32 +318,43 @@ export default function Navbar() {
           {/* Ticker Marquee with Fade Mask */}
           <div className="ticker-mask relative flex w-full overflow-hidden">
             <div className="ticker-track flex items-center gap-3 px-4">
-              {/* First set of tickers */}
-              {displayQuotes.map((quote, idx) => (
-                <TickerChip 
-                  key={`first-${quote.symbol}-${idx}`} 
-                  quote={quote} 
-                  isLoading={quotesLoading && quotes.length === 0}
-                />
-              ))}
-              {/* Duplicate for seamless loop */}
-              {displayQuotes.map((quote, idx) => (
-                <TickerChip 
-                  key={`second-${quote.symbol}-${idx}`} 
-                  quote={quote}
-                  isLoading={quotesLoading && quotes.length === 0}
-                />
-              ))}
+              {showTickerPlaceholders
+                ? Array.from({ length: 8 }).map((_, idx) => (
+                    <TickerPlaceholder key={`ticker-placeholder-${idx}`} />
+                  ))
+                : (
+                  <>
+                    {displayQuotes.map((quote, idx) => (
+                      <TickerChip
+                        key={`first-${quote.symbol}-${idx}`}
+                        quote={quote}
+                        isLoading={quotesLoading || isFallback}
+                      />
+                    ))}
+                    {displayQuotes.map((quote, idx) => (
+                      <TickerChip
+                        key={`second-${quote.symbol}-${idx}`}
+                        quote={quote}
+                        isLoading={quotesLoading || isFallback}
+                      />
+                    ))}
+                  </>
+                )}
             </div>
           </div>
 
           {/* Live Indicator - Small dot on right */}
-          {lastUpdated && (
+          {lastUpdated && !quotesError && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
               <span className="text-[9px] font-medium text-gray-500">
                 {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
+            </div>
+          )}
+          {quotesError && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-gray-900 px-2 py-1 text-[9px] font-medium uppercase tracking-wide text-white">
+              Live data unavailable
             </div>
           )}
         </section>

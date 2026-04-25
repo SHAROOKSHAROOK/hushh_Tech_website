@@ -75,19 +75,23 @@ export const MissionControlLayout: React.FC<MissionControlLayoutProps> = ({
       minH="100vh"
       bg="gray.900"
       color="white"
-      p={{ base: 2, md: 4 }}
+      px={{ base: 3, md: 4, lg: 6 }}
+      py={{ base: 3, md: 4 }}
     >
       {/* Header */}
       <HStack
         justify="space-between"
         mb={4}
-        p={4}
+        p={{ base: 3, md: 4 }}
         bg="blackAlpha.600"
         borderRadius="lg"
         border="1px solid"
         borderColor="gray.700"
+        align={{ base: 'flex-start', md: 'center' }}
+        flexDirection={{ base: 'column', md: 'row' }}
+        spacing={{ base: 3, md: 0 }}
       >
-        <HStack spacing={4}>
+        <HStack spacing={4} wrap="wrap">
           <Heading size="md" fontFamily="mono" color="green.400">
             🛡️ MISSION CONTROL
           </Heading>
@@ -95,7 +99,7 @@ export const MissionControlLayout: React.FC<MissionControlLayoutProps> = ({
             A2A PROTOCOL v1.0
           </Badge>
         </HStack>
-        <HStack spacing={4}>
+        <HStack spacing={4} wrap="wrap">
           <EncryptionBadge isActive={isProcessing} />
           <ConnectionStatus agents={agents} />
         </HStack>
@@ -106,6 +110,9 @@ export const MissionControlLayout: React.FC<MissionControlLayoutProps> = ({
         templateColumns={{ base: '1fr', lg: '280px 1fr 320px' }}
         gap={4}
         h={{ base: 'auto', lg: 'calc(100vh - 140px)' }}
+        maxW="1800px"
+        mx="auto"
+        alignItems="stretch"
       >
         {/* Left Pane - Agent Network */}
         {!isMobile && (
